@@ -47,7 +47,8 @@ class StatusFrame(FluentCard):
         s_name = self.config.get("service_name", "proxifierdrv")
         p_path = self.config.get("proxifier_exe_path", "")
         
-        self.toggle_btn.config(state=tk.DISABLED, text="处理中...")
+        real_btn = self.toggle_btn
+        real_btn.config(state=tk.DISABLED, text="处理中...")
         
         def run_toggle():
             if curr_s == "RUNNING":
@@ -59,7 +60,7 @@ class StatusFrame(FluentCard):
                     process.start_proxifier(p_path)
             
             # 操作完成后恢复按钮状态
-            self.after(500, lambda: self.toggle_btn.config(state=tk.NORMAL, text="切换状态"))
+            self.after(500, lambda: real_btn.config(state=tk.NORMAL, text="切换状态"))
             
         threading.Thread(target=run_toggle, daemon=True).start()
 

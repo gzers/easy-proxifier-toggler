@@ -52,44 +52,81 @@ class FluentCard(tk.Frame):
 
 def apply_fluent_button(button, style="standard"):
     """
-    为按钮应用 Fluent UI 风格
-    style: 'accent' (蓝色主按钮) | 'standard' (白色标准按钮) | 'success' | 'danger'
+    内部样式应用函数
     """
-    # 基础属性配置
     if style == "accent":
         bg, fg, hbg = COLORS["primary"], COLORS["text_white"], COLORS["primary_hover"]
-        border_w = 0
     elif style == "success":
         bg, fg, hbg = COLORS["success"], COLORS["text_white"], "#0D6B0D"
-        border_w = 0
     elif style == "danger":
         bg, fg, hbg = COLORS["danger"], COLORS["text_white"], "#A22418"
-        border_w = 0
     else: # standard
         bg, fg, hbg = COLORS["secondary"], COLORS["secondary_text"], COLORS["bg_hover"]
-        border_w = 1
 
     button.configure(
         bg=bg, fg=fg,
         font=FONTS["normal"],
         relief=tk.FLAT,
-        borderwidth=border_w,
-        highlightthickness=border_w,
-        highlightbackground=COLORS["secondary_border"],
-        padx=12, pady=6,
+        borderwidth=0,
+        padx=18, pady=7,
+        cursor="hand2",
+        activebackground=hbg,
+        activeforeground=fg
+    )
+
+def apply_fluent_button(button, style="standard"):
+    """
+    为按钮应用现代 Fluent UI 纯平风格
+    特点：极细 1px 边框，无浮雕感，锐利清晰
+    """
+    if style == "accent":
+        # 主按钮：实心蓝色，无明显边框边界
+        bg, fg, hbg = COLORS["primary"], COLORS["text_white"], COLORS["primary_hover"]
+        border_color = COLORS["primary"]
+    elif style == "success":
+        bg, fg, hbg = COLORS["success"], COLORS["text_white"], "#0D6B0D"
+        border_color = COLORS["success"]
+    elif style == "danger":
+        bg, fg, hbg = COLORS["danger"], COLORS["text_white"], "#A22418"
+        border_color = COLORS["danger"]
+    else: # standard
+        # 标准按钮：白底灰边
+        bg, fg, hbg = COLORS["secondary"], COLORS["secondary_text"], COLORS["bg_hover"]
+        border_color = COLORS["secondary_border"]
+
+    button.configure(
+        bg=bg,
+        fg=fg,
+        font=FONTS["normal"],
+        relief=tk.FLAT,
+        borderwidth=0,
+        highlightthickness=1,
+        highlightbackground=border_color,
+        padx=15,
+        pady=5,
         cursor="hand2",
         activebackground=hbg,
         activeforeground=fg
     )
     
-    def on_enter(e): button.config(bg=hbg)
-    def on_leave(e): button.config(bg=bg)
+    def on_enter(e):
+        if str(button['state']) == 'normal':
+            button.config(bg=hbg)
+            if style == "standard":
+                button.config(highlightbackground=COLORS["primary"])
+            
+    def on_leave(e):
+        if str(button['state']) == 'normal':
+            button.config(bg=bg, highlightbackground=border_color)
+
     button.bind("<Enter>", on_enter)
     button.bind("<Leave>", on_leave)
 
-def create_styled_button(master, text, command, style="standard", **kwargs):
-    """便捷创建 Fluent 风格按钮"""
+def create_styled_button(master, text, command, style="standard", width=None, **kwargs):
+    """便捷创建样式的 tk.Button"""
     btn = tk.Button(master, text=text, command=command, **kwargs)
+    if width:
+        btn.config(width=width)
     apply_fluent_button(btn, style)
     return btn
 
