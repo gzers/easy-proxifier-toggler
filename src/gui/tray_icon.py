@@ -9,8 +9,19 @@ from .settings import open_settings
 
 
 def create_image():
-    """创建托盘图标"""
-    # 创建一个简单的圆形图标
+    """获取托盘图标
+    优先从 assets 目录加载外部图标，如果不存在则使用代码绘制备用图标
+    """
+    project_root = config_manager.PROJECT_ROOT
+    icon_path = project_root / "assets" / "icon.png"
+    
+    if icon_path.exists():
+        try:
+            return Image.open(icon_path)
+        except Exception as e:
+            print(f"加载外部图标失败: {e}")
+            
+    # 如果外部图标不存在或加载失败，创建备用图标
     width = 64
     height = 64
     image = Image.new('RGB', (width, height), (255, 255, 255))

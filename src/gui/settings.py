@@ -33,12 +33,15 @@ class SettingsWindow:
         self._center_window(600, 380)
         self.window.resizable(False, False)
         
-        # 设置窗口图标（可选）
+        # 设置窗口图标
         try:
-            self.window.iconbitmap(default='')
-        except:
-            pass
-        
+            from ..config import manager as config_manager
+            icon_path = config_manager.PROJECT_ROOT / "assets" / "icon.ico"
+            if icon_path.exists():
+                self.window.iconbitmap(str(icon_path))
+        except Exception as e:
+            print(f"设置窗口图标失败: {e}")
+            
         # 加载当前配置
         config = config_manager.load_config()
         
