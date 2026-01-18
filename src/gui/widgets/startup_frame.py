@@ -6,9 +6,9 @@ class StartupFrame(FluentCard):
     def __init__(self, master, config, **kwargs):
         super().__init__(master, title="启动及运行", **kwargs)
         
-        # 确保变量绑定到根窗口，防止生命周期问题
-        self.auto_start_var = tk.BooleanVar(value=config.get("auto_start", False))
-        self.minimized_var = tk.BooleanVar(value=config.get("start_minimized", True))
+        # 显式绑定 master，确保变量随组件生命周期正常销毁，防止 RuntimeError
+        self.auto_start_var = tk.BooleanVar(master=self, value=config.get("auto_start", False))
+        self.minimized_var = tk.BooleanVar(master=self, value=config.get("start_minimized", True))
         
         self._setup_ui()
 

@@ -3,7 +3,9 @@ from PIL import Image, ImageTk, ImageSequence
 from ..styles import FONTS, COLORS
 
 class HeaderFrame(tk.Frame):
-    """页眉组件 - 支持动态 GIF Logo 和标题"""
+    """页眉组件 - 支持动态 GIF Logo (包含缓存优化)"""
+    _frames_cache = {} # 类级别缓存，避免重复解码
+
     def __init__(self, master, title, logo_path, **kwargs):
         super().__init__(master, **kwargs)
         self.title_text = title
@@ -17,27 +19,31 @@ class HeaderFrame(tk.Frame):
         self.logo_label = tk.Label(self, bg=self["bg"])
         self.logo_label.pack(side=tk.LEFT, padx=(0, 10))
 
-        # 加载 GIF 序列并缩放
-        try:
-            if self.logo_path.exists():
-                img = Image.open(self.logo_path)
-                
-                # 遍历所有帧
-                for frame in ImageSequence.Iterator(img):
-                    # 关键：先转换为 RGBA 确保缩放时 alpha 通道处理正确，减少锯齿感
-                    frame = frame.convert("RGBA")
+        # 优先从缓存读取
+        cache_key = str(self.logo_path)
+        if cache_key in HeaderFrame._frames_cache:
+            self.frames = HeaderFrame._frames_cache[cache_key]
+        else:
+            # 异步处理或至少在第一次加载时优化
+            try:
+                if self.logo_path.exists():
+                    img = Image.open(self.logo_path)
+                    processed_frames = []
                     
-                    h = 36 # 稍微放大一点点
-                    w = int(frame.width * (h / frame.height))
-                    # 使用高质量滤镜
-                    frame = frame.resize((w, h), Image.Resampling.LANCZOS)
+                    for frame in ImageSequence.Iterator(img):
+                        frame = frame.convert("RGBA")
+                        h = 36 
+                        w = int(frame.width * (h / frame.height))
+                        frame = frame.resize((w, h), Image.Resampling.LANCZOS)
+                        processed_frames.append(ImageTk.PhotoImage(frame))
                     
-                    self.frames.append(ImageTk.PhotoImage(frame))
-                
-                if self.frames:
-                    self._animate()
-        except Exception as e:
-            print(f"Error loading animated header logo: {e}")
+                    self.frames = processed_frames
+                    HeaderFrame._frames_cache[cache_key] = self.frames
+            except Exception as e:
+                print(f"Error loading header logo: {e}")
+
+        if self.frames:
+            self._animate()
 
         # 标题文字
         tk.Label(
@@ -50,13 +56,13 @@ class HeaderFrame(tk.Frame):
 
     def _animate(self):
         """循环更新 GIF 帧"""
-        if not self.frames:
+        if not self.winfo_exists() or not self.frames:
             return
             
-        frame = self.frames[self._curr_frame_idx]
-        self.logo_label.config(image=frame)
-        
-        self._curr_frame_idx = (self._curr_frame_idx + 1) % len(self.frames)
-        
-        # 约 50ms 一帧 (20fps)，可根据实际 GIF 调整
-        self.after(50, self._animate)
+        try:
+            frame = self.frames[self._curr_frame_idx]
+            self.logo_label.config(image=frame)
+            self._curr_frame_idx = (self._curr_frame_idx + 1) % len(self.frames)
+            self.after(50, self._animate)
+        except:
+            pass

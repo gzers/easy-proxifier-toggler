@@ -7,17 +7,20 @@ from .service import run_command_admin
 def is_proxifier_running(proxifier_exe_path):
     """检查 Proxifier 进程是否在运行"""
     try:
+        exe_name = os.path.basename(proxifier_exe_path)
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
         
+        # 使用过滤器加速查询
         output = subprocess.check_output(
-            'tasklist',
+            f'tasklist /FI "IMAGENAME eq {exe_name}" /NH',
             shell=True,
             text=True,
-            startupinfo=startupinfo
+            startupinfo=startupinfo,
+            stderr=subprocess.DEVNULL
         )
-        return os.path.basename(proxifier_exe_path) in output
+        return exe_name.lower() in output.lower()
     except Exception:
         return False
 

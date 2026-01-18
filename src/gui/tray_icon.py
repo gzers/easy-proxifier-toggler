@@ -84,18 +84,28 @@ def show_status(icon, item):
     icon.notify(status_text, "Proxifier 状态")
 
 
+# 全局引用，方便异步操作
+_app_instance = None
+
 def open_settings_window(icon, item):
-    """在新线程中打开设置窗口，避免阻塞托盘图标"""
-    threading.Thread(target=open_settings, daemon=True).start()
+    """通过主线程安全地显示设置面板"""
+    if _app_instance:
+        # 使用 after 将任务调度到主线程执行，彻底解决白屏与 RuntimeError
+        _app_instance.root.after(0, _app_instance.show)
 
 
 def quit_app(icon, item):
-    """退出程序"""
+    """安全退出程序"""
     icon.stop()
+    if _app_instance and _app_instance.root:
+        _app_instance.root.after(0, _app_instance.root.quit)
 
 
-def setup_icon():
+def setup_icon(app_instance=None):
     """设置托盘图标和菜单"""
+    global _app_instance
+    _app_instance = app_instance
+    
     image = create_image()
 
     menu = pystray.Menu(
@@ -110,3 +120,10 @@ def setup_icon():
     from .. import __version__
     icon = pystray.Icon("Proxifier_Toggler", image, f"Proxifier 切换器 v{__version__}", menu)
     icon.run()
+
+def setup_tray_async(app_instance):
+    """在后台线程启动托盘图标"""
+    import threading
+    thread = threading.Thread(target=setup_icon, args=(app_instance,), daemon=True)
+    thread.start()
+    return thread

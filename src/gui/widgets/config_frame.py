@@ -9,8 +9,9 @@ class ConfigFrame(FluentCard):
     def __init__(self, master, config, **kwargs):
         super().__init__(master, title="基本配置", **kwargs)
         
-        self.path_var = tk.StringVar(value=config.get("proxifier_exe_path", ""))
-        self.service_var = tk.StringVar(value=config.get("service_name", "proxifierdrv"))
+        # 显式绑定 master，配合 Toplevel 架构防止跨线程 GC 导致的报错
+        self.path_var = tk.StringVar(master=self, value=config.get("proxifier_exe_path", ""))
+        self.service_var = tk.StringVar(master=self, value=config.get("service_name", "proxifierdrv"))
         
         self._setup_ui()
 
