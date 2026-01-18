@@ -12,8 +12,7 @@ def create_image():
     """获取托盘图标
     优先从 assets 目录加载外部图标，如果不存在则使用代码绘制备用图标
     """
-    project_root = config_manager.PROJECT_ROOT
-    icon_path = project_root / "assets" / "icon.png"
+    icon_path = config_manager.ASSETS_DIR / "icon.png"
     
     if icon_path.exists():
         try:

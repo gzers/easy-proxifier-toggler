@@ -36,7 +36,7 @@ class SettingsWindow:
         # 设置窗口图标
         try:
             from ..config import manager as config_manager
-            icon_path = config_manager.PROJECT_ROOT / "assets" / "icon.ico"
+            icon_path = config_manager.ASSETS_DIR / "icon.ico"
             if icon_path.exists():
                 self.window.iconbitmap(str(icon_path))
         except Exception as e:

@@ -1,4 +1,5 @@
 """配置管理器"""
+import sys
 import os
 import json
 from pathlib import Path
@@ -11,11 +12,21 @@ DEFAULT_CONFIG = {
     "start_minimized": True  # 启动时是否最小化（不最小化则打开设置界面）
 }
 
-# 配置文件路径（存放在项目根目录的 config 文件夹）
-# 获取项目根目录（src 的父目录）
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# 获取项目根目录
+if getattr(sys, 'frozen', False):
+    # 打包环境（EXE 运行）
+    # 获取 EXE 所在的目录用于存放配置文件
+    PROJECT_ROOT = Path(sys.executable).parent
+    # 获取内部资源目录（assets 所在）
+    RESOURCE_ROOT = Path(sys._MEIPASS)
+else:
+    # 源码环境（直接运行 Python）
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    RESOURCE_ROOT = PROJECT_ROOT
+
 CONFIG_DIR = PROJECT_ROOT / "config"
 CONFIG_FILE = CONFIG_DIR / "config.json"
+ASSETS_DIR = RESOURCE_ROOT / "assets"
 
 
 def _ensure_config_dir():
