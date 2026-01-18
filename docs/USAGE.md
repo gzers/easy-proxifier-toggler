@@ -1,4 +1,4 @@
-# Proxifier Toggler 使用指南 (v2.3.0)
+# Proxifier Toggler 使用指南 (v2.3.3)
 
 ## 基础运行
 
