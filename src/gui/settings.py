@@ -8,6 +8,7 @@ from .widgets.status_frame import StatusFrame
 from .widgets.config_frame import ConfigFrame
 from .widgets.startup_frame import StartupFrame
 from .widgets.footer_frame import FooterFrame
+from .widgets.header_frame import HeaderFrame
 from .widgets.about_dialog import AboutDialog
 from .styles import create_styled_button, COLORS, FONTS
 
@@ -100,15 +101,15 @@ class SettingsWindow:
             width=10
         ).pack(side=tk.RIGHT, padx=10)
 
-        # 3. 顶部标题区域
-        header_frame = tk.Frame(self.window, bg=COLORS["bg_window"])
-        header_frame.pack(fill="x", padx=pad_x, pady=(25, 15))
-        
-        tk.Label(
-            header_frame, text="Easy-Proxifier-Toggler", 
-            font=FONTS["caption"], fg=COLORS["primary"], 
+        # 3. 顶部标题区域 (使用 HeaderFrame 组件)
+        logo_path = config_manager.ASSETS_DIR / "gzgg-logo.gif"
+        self.header = HeaderFrame(
+            self.window, 
+            title="Easy-Proxifier-Toggler", 
+            logo_path=logo_path,
             bg=COLORS["bg_window"]
-        ).pack(side=tk.LEFT)
+        )
+        self.header.pack(fill="x", padx=pad_x, pady=(25, 15))
         
         # 4. 中间卡片区域
         self.status_panel = StatusFrame(self.window, self.initial_config)
