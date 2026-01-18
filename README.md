@@ -1,6 +1,6 @@
 # Easy-Proxifier-Toggler
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.3.1-blue.svg)](docs/CHANGELOG.md)
 
 快速切换 Proxifier 运行状态的系统托盘工具，旨在解决与其他对进程或驱动环境敏感的软件/游戏之间的检测冲突。
 

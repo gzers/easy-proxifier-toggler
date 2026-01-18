@@ -237,6 +237,49 @@ dist\ProxifierToggler.exe
 
 ---
 
+## 版本发布指南
+
+### 1. 更新版本号
+
+我们提供了一个自动化脚本来同步更新项目中的版本号（包括 `src/__init__.py`、`README.md` 和 `PROJECT_SUMMARY.md`）。
+
+**使用方法**:
+```bash
+# 在项目根目录下运行
+# 格式: python scripts/update_version.py <新版本号>
+python scripts/update_version.py 2.3.1
+```
+
+**脚本会自动更新**:
+- `src/__init__.py`: 更新 `__version__` 变量
+- `README.md`: 更新 Version Badge 链接
+- `PROJECT_SUMMARY.md`: 更新版本号字段
+
+### 2. 更新更新日志
+
+**必须手动**编辑 `docs/CHANGELOG.md` 文件，添加详细的更新记录：
+
+```markdown
+## [2.3.1] - 2026-01-18
+
+### 新增
+- ...
+
+### 修复
+- ...
+```
+
+### 3. 打包发布
+
+执行打包脚本生成新的可执行文件：
+
+```bash
+cd scripts
+build.bat
+```
+
+---
+
 ## 推荐的 IDE 配置
 
 ### VS Code
