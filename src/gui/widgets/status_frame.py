@@ -134,8 +134,18 @@ class StatusFrame(FluentCard):
         except tk.TclError:
             return
 
+        # 判断状态是否发生变化，若是则刷新托盘图标
+        status_changed = (self.last_status.get("service") != s_status)
+        
         self.last_status["service"] = s_status
         self.last_status["process"] = "RUNNING" if p_running else "STOPPED"
+
+        if status_changed:
+            try:
+                from ..tray_icon import refresh_tray_icon
+                refresh_tray_icon()
+            except ImportError:
+                pass
 
         # 1. 更新服务状态文字与颜色
         if self.service_status_var:

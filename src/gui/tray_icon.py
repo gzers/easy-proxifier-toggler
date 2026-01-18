@@ -8,31 +8,77 @@ from ..config import manager as config_manager
 from .settings import open_settings
 
 
-def create_image():
+# 全局引用与缓存
+_app_instance = None
+_icon_instance = None
+_icon_images = {
+    "active": None,
+    "inactive": None
+}
+
+
+def create_image(active=True):
     """获取托盘图标
-    优先从 assets 目录加载外部图标，如果不存在则使用代码绘制备用图标
-    """
-    icon_path = config_manager.ASSETS_DIR / "icon.png"
+    直接加载预生成的活动/非活动状态图标
     
+    Args:
+        active: True 为彩色(活动)图标，False 为灰度(非活动)图标
+    """
+    # 检查缓存
+    cache_key = "active" if active else "inactive"
+    if _icon_images[cache_key]:
+        return _icon_images[cache_key]
+
+    # 根据状态选择对应的图标文件
+    icon_filename = "icon.png" if active else "icon_inactive.png"
+    icon_path = config_manager.ASSETS_DIR / icon_filename
+    
+    # 加载图标
     if icon_path.exists():
         try:
-            return Image.open(icon_path)
+            image = Image.open(icon_path)
+            _icon_images[cache_key] = image
+            return image
         except Exception as e:
-            print(f"加载外部图标失败: {e}")
-            
-    # 如果外部图标不存在或加载失败，创建备用图标
+            print(f"加载图标失败 ({icon_filename}): {e}")
+    
+    # 如果加载失败，创建备用图标
     width = 64
     height = 64
-    image = Image.new('RGB', (width, height), (255, 255, 255))
+    
+    image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     dc = ImageDraw.Draw(image)
+    if active:
+        dc.ellipse([8, 8, 56, 56], fill=(0, 120, 215, 255), outline=(0, 90, 180, 255))
+    else:
+        dc.ellipse([8, 8, 56, 56], fill=(160, 160, 160, 255), outline=(120, 120, 120, 255))
+    dc.text((22, 18), "P", fill=(255, 255, 255, 255))
     
-    # 绘制一个蓝色圆圈
-    dc.ellipse([8, 8, 56, 56], fill=(0, 120, 215), outline=(0, 90, 180))
-    
-    # 绘制一个白色的 "P" 字母
-    dc.text((22, 18), "P", fill=(255, 255, 255))
-    
+    # 存入缓存
+    _icon_images[cache_key] = image
     return image
+
+
+def update_icon_state(icon):
+    """根据服务状态更新图标"""
+    service_name = config_manager.get_service_name()
+    status = service.get_service_status(service_name)
+    
+    # 状态判定：RUNNING 为活动，其他为非活动
+    is_active = (status == "RUNNING")
+    
+    # 获取对应图标
+    new_image = create_image(active=is_active)
+    
+    # 如果当前图标与新图标不同，才更新
+    if icon.icon != new_image:
+        icon.icon = new_image
+
+
+def refresh_tray_icon():
+    """供外部调用的刷新物理接口（无轮询，按需调用）"""
+    if _icon_instance:
+        update_icon_state(_icon_instance)
 
 
 def toggle_proxifier_state(icon, item):
@@ -47,8 +93,6 @@ def toggle_proxifier_state(icon, item):
         
         # 杀进程
         process.kill_proxifier(proxifier_exe_path)
-        time.sleep(1)
-        
         # 停服务
         if service.stop_service(service_name):
             icon.notify("Proxifier 已关闭。", "状态通知")
@@ -70,6 +114,9 @@ def toggle_proxifier_state(icon, item):
             icon.notify("驱动启动失败！", "错误")
     else:
         icon.notify(f"Proxifier 状态未知 ({current_status})", "警告")
+    
+    # 操作后立即更新一次图标
+    update_icon_state(icon)
 
 
 def show_status(icon, item):
@@ -84,13 +131,9 @@ def show_status(icon, item):
     icon.notify(status_text, "Proxifier 状态")
 
 
-# 全局引用，方便异步操作
-_app_instance = None
-
 def open_settings_window(icon, item):
     """通过主线程安全地显示设置面板"""
     if _app_instance:
-        # 使用 after 将任务调度到主线程执行，彻底解决白屏与 RuntimeError
         _app_instance.root.after(0, _app_instance.show)
 
 
@@ -103,10 +146,11 @@ def quit_app(icon, item):
 
 def setup_icon(app_instance=None):
     """设置托盘图标和菜单"""
-    global _app_instance
+    global _app_instance, _icon_instance
     _app_instance = app_instance
     
-    image = create_image()
+    # 初始创建图标
+    image = create_image(active=True)
 
     menu = pystray.Menu(
         pystray.MenuItem("切换 Proxifier", toggle_proxifier_state, default=True),
@@ -118,12 +162,15 @@ def setup_icon(app_instance=None):
     )
 
     from .. import __version__
-    icon = pystray.Icon("Proxifier_Toggler", image, f"Proxifier 切换器 v{__version__}", menu)
-    icon.run()
+    _icon_instance = pystray.Icon("Proxifier_Toggler", image, f"Proxifier 切换器 v{__version__}", menu)
+    
+    # 启动时根据实际状态同步一次图标
+    update_icon_state(_icon_instance)
+    
+    _icon_instance.run()
 
 def setup_tray_async(app_instance):
     """在后台线程启动托盘图标"""
-    import threading
     thread = threading.Thread(target=setup_icon, args=(app_instance,), daemon=True)
     thread.start()
     return thread
