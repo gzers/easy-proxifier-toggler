@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-2.1.1-blue.svg)](docs/CHANGELOG.md)
 
-一个简单的系统托盘工具，用于快速切换 Proxifier 的开关状态。
+快速切换 Proxifier 运行状态的系统托盘工具，旨在解决与其他对进程或驱动环境敏感的软件/游戏之间的检测冲突。
 
 ## 功能特性
 
