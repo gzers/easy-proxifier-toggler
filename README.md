@@ -1,8 +1,16 @@
+<div align="center">
+
+<img src="assets/icon.png" alt="Easy-Proxifier-Toggler" width="128" height="128">
+
 # Easy-Proxifier-Toggler
 
 [![Version](https://img.shields.io/badge/version-2.3.3-blue.svg)](docs/CHANGELOG.md)
 
-快速切换 Proxifier 运行状态的系统托盘工具，旨在解决与其他对进程或驱动环境敏感的软件/游戏之间的检测冲突。
+**快速切换 Proxifier 运行状态的系统托盘工具**
+
+旨在解决与其他对进程或驱动环境敏感的软件/游戏之间的检测冲突
+
+</div>
 
 ## 功能特性
 
