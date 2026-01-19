@@ -1,36 +1,45 @@
-import tkinter as tk
-from ..styles import FONTS, COLORS
+"""页脚组件 - CustomTkinter 现代化版本"""
+import customtkinter as ctk
+from ..ctk_styles import Fonts, Sizes, Colors
 
-class FooterFrame(tk.Frame):
+
+class FooterFrame(ctk.CTkFrame):
     """页脚组件 - 显示版本和作者信息"""
-    def __init__(self, master, version, author, **kwargs):
+    
+    def __init__(self, master, version="", author="", **kwargs):
+        # 设置透明背景
+        kwargs.setdefault("fg_color", "transparent")
         super().__init__(master, **kwargs)
+        
         self.version = version
         self.author = author
+        
         self._setup_ui()
-
+    
     def _setup_ui(self):
-        # 分割线 (使用全局边框色)
-        separator = tk.Frame(self, height=1, bg=COLORS["border"])
-        separator.pack(fill="x", pady=(0, 15))
+        """设置 UI 布局"""
+        # 分隔线
+        separator = ctk.CTkFrame(self, height=1, fg_color=Colors.BORDER_DARK)
+        separator.pack(fill="x", pady=(0, Sizes.PADDING_SMALL))
         
-        # 容器用于居中显示
-        content_frame = tk.Frame(self, bg=self["bg"])
-        content_frame.pack(expand=True)
+        # 信息容器
+        info_frame = ctk.CTkFrame(self, fg_color="transparent")
+        info_frame.pack(fill="x")
         
-        # 使用小字体分行显示
-        tk.Label(
-            content_frame, 
-            text=f"版本: v{self.version}", 
-            font=FONTS["small"], 
-            fg=COLORS["text_secondary"], 
-            bg=self["bg"]
-        ).pack(side=tk.LEFT, padx=12)
+        # 版本信息（左侧）
+        version_label = ctk.CTkLabel(
+            info_frame,
+            text=f"版本 {self.version}",
+            font=Fonts.CAPTION,
+            anchor="w"
+        )
+        version_label.pack(side="left")
         
-        tk.Label(
-            content_frame, 
-            text=f"作者: {self.author}", 
-            font=FONTS["small"], 
-            fg=COLORS["text_secondary"], 
-            bg=self["bg"]
-        ).pack(side=tk.LEFT, padx=12)
+        # 作者信息（右侧）
+        author_label = ctk.CTkLabel(
+            info_frame,
+            text=f"作者: {self.author}",
+            font=Fonts.CAPTION,
+            anchor="e"
+        )
+        author_label.pack(side="right")

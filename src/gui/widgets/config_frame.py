@@ -1,55 +1,99 @@
-import tkinter as tk
+"""基本参数配置板块 - CustomTkinter 现代化版本"""
+import customtkinter as ctk
 from tkinter import filedialog
-from ..styles import create_styled_button, COLORS, FONTS
+from ..ctk_styles import CTkCard, ButtonStyles, EntryStyles, Fonts, Sizes, Colors
 
-from ..styles import create_styled_button, COLORS, FONTS, FluentCard, apply_fluent_entry
 
-class ConfigFrame(FluentCard):
-    """基本参数配置板块 - Fluent UI 风格"""
+class ConfigFrame(CTkCard):
+    """基本参数配置板块 - 现代化 CustomTkinter 风格"""
+    
     def __init__(self, master, config, **kwargs):
         super().__init__(master, title="基本配置", **kwargs)
         
-        # 显式绑定 master，配合 Toplevel 架构防止跨线程 GC 导致的报错
-        self.path_var = tk.StringVar(master=self, value=config.get("proxifier_exe_path", ""))
-        self.service_var = tk.StringVar(master=self, value=config.get("service_name", "proxifierdrv"))
+        # 配置变量
+        self.path_var = ctk.StringVar(value=config.get("proxifier_exe_path", ""))
+        self.service_var = ctk.StringVar(value=config.get("service_name", "proxifierdrv"))
         
         self._setup_ui()
-
+    
     def _setup_ui(self):
-        # Proxifier 路径
-        tk.Label(self, text="Proxifier 可执行文件路径:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).pack(anchor="w")
-        path_frame = tk.Frame(self, bg=COLORS["bg_card"])
-        path_frame.pack(fill="x", pady=(8, 15)) # 增加间距
+        """设置 UI 布局"""
+        from ..ctk_styles import StyledButton
+        # 主容器
+        container = ctk.CTkFrame(self, fg_color="transparent")
+        container.pack(fill="both", expand=True, padx=Sizes.PADDING, pady=Sizes.PADDING)
         
-        path_entry = tk.Entry(path_frame, textvariable=self.path_var)
-        apply_fluent_entry(path_entry)
-        path_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=(0, 10))
+        # Proxifier 路径配置
+        ctk.CTkLabel(
+            container,
+            text="Proxifier 可执行文件路径:",
+            font=Fonts.BODY,
+            anchor="w"
+        ).pack(anchor="w", pady=(0, Sizes.PADDING_TINY))
         
-        create_styled_button(path_frame, text="浏览", command=self._browse_file, width=8, style="standard", icon="📁").pack(side=tk.RIGHT)
+        # 路径输入框和浏览按钮
+        path_frame = ctk.CTkFrame(container, fg_color="transparent")
+        path_frame.pack(fill="x", pady=(0, Sizes.PADDING))
         
-        # 服务名称
-        tk.Label(self, text="驱动服务名称:", font=FONTS["normal"], fg=COLORS["text_secondary"], bg=COLORS["bg_card"]).pack(anchor="w")
-        service_entry = tk.Entry(self, textvariable=self.service_var)
-        apply_fluent_entry(service_entry)
-        service_entry.pack(fill="x", pady=(8, 5))
-        tk.Label(self, text="* 通常为 'proxifierdrv'，不熟悉请勿修改", font=FONTS["small"], fg="gray", bg=COLORS["bg_card"]).pack(anchor="w", pady=(0, 5))
-
+        self.path_entry = ctk.CTkEntry(
+            path_frame,
+            textvariable=self.path_var,
+            placeholder_text="请选择 Proxifier.exe 文件路径",
+            **EntryStyles.default()
+        )
+        self.path_entry.pack(side="left", fill="x", expand=True, padx=(0, Sizes.PADDING_SMALL))
+        
+        browse_btn = StyledButton(
+            path_frame,
+            text="📁 浏览",
+            command=self._browse_file,
+            style="secondary",
+            width=100
+        )
+        browse_btn.pack(side="right")
+        
+        # 服务名称配置
+        ctk.CTkLabel(
+            container,
+            text="驱动服务名称:",
+            font=Fonts.BODY,
+            anchor="w"
+        ).pack(anchor="w", pady=(Sizes.PADDING_SMALL, Sizes.PADDING_TINY))
+        
+        self.service_entry = ctk.CTkEntry(
+            container,
+            textvariable=self.service_var,
+            placeholder_text="proxifierdrv",
+            **EntryStyles.default()
+        )
+        self.service_entry.pack(fill="x", pady=(0, Sizes.PADDING_TINY))
+        
+        # 提示文字
+        ctk.CTkLabel(
+            container,
+            text="* 通常为 'proxifierdrv'，不熟悉请勿修改",
+            font=Fonts.CAPTION,
+            text_color="gray",
+            anchor="w"
+        ).pack(anchor="w")
+    
     def _browse_file(self):
+        """浏览文件对话框"""
         filename = filedialog.askopenfilename(
             title="选择 Proxifier 可执行文件",
             filetypes=[("可执行文件", "*.exe"), ("所有文件", "*.*")]
         )
         if filename:
             self.path_var.set(filename)
-
+    
     def get_data(self):
-        """获取当前输入的数据"""
+        """获取当前配置数据"""
         return {
             "proxifier_exe_path": self.path_var.get().strip(),
             "service_name": self.service_var.get().strip()
         }
-
+    
     def set_data(self, config):
-        """重置数据"""
+        """设置配置数据"""
         self.path_var.set(config.get("proxifier_exe_path", ""))
         self.service_var.set(config.get("service_name", "proxifierdrv"))

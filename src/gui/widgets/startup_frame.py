@@ -1,42 +1,83 @@
-import tkinter as tk
-from ..styles import FONTS, COLORS, FluentCard, apply_fluent_checkbutton
+"""启动选项配置板块 - CustomTkinter 现代化版本"""
+import customtkinter as ctk
+from ..ctk_styles import CTkCard, Fonts, Sizes
 
-class StartupFrame(FluentCard):
-    """启动选项配置板块 - Fluent UI 风格"""
+
+class StartupFrame(CTkCard):
+    """启动选项配置板块 - 现代化 CustomTkinter 风格"""
+    
     def __init__(self, master, config, **kwargs):
-        super().__init__(master, title="启动及运行", **kwargs)
+        super().__init__(master, title="启动选项", **kwargs)
         
-        # 显式绑定 master，确保变量随组件生命周期正常销毁，防止 RuntimeError
-        self.auto_start_var = tk.BooleanVar(master=self, value=config.get("auto_start", False))
-        self.minimized_var = tk.BooleanVar(master=self, value=config.get("start_minimized", True))
+        # 配置变量
+        self.auto_start_var = ctk.BooleanVar(value=config.get("auto_start", False))
+        self.start_minimized_var = ctk.BooleanVar(value=config.get("start_minimized", True))
         
         self._setup_ui()
-
+    
     def _setup_ui(self):
-        # 1. 随登录启动
-        self.cb1 = tk.Checkbutton(
-            self, 
-            text="随 Windows 登录自动启动程序", 
-            variable=self.auto_start_var
-        )
-        apply_fluent_checkbutton(self.cb1)
-        self.cb1.pack(fill="x", pady=(2, 5))
+        """设置 UI 布局"""
+        # 主容器
+        container = ctk.CTkFrame(self, fg_color="transparent")
+        container.pack(fill="both", expand=True, padx=Sizes.PADDING, pady=Sizes.PADDING)
         
-        # 2. 自动最小化
-        self.cb2 = tk.Checkbutton(
-            self, 
-            text="程序启动时自动最小化到系统托盘", 
-            variable=self.minimized_var
+        # 开机自启动选项 - 使用现代化的 Switch
+        auto_start_frame = ctk.CTkFrame(container, fg_color="transparent")
+        auto_start_frame.pack(fill="x", pady=Sizes.PADDING_SMALL)
+        
+        ctk.CTkLabel(
+            auto_start_frame,
+            text="开机自动启动",
+            font=Fonts.BODY,
+            anchor="w"
+        ).pack(side="left", fill="x", expand=True)
+        
+        self.auto_start_switch = ctk.CTkSwitch(
+            auto_start_frame,
+            text="",
+            variable=self.auto_start_var,
+            onvalue=True,
+            offvalue=False
         )
-        apply_fluent_checkbutton(self.cb2)
-        self.cb2.pack(fill="x", pady=(5, 2))
-
+        self.auto_start_switch.pack(side="right")
+        
+        # 启动时最小化选项
+        minimized_frame = ctk.CTkFrame(container, fg_color="transparent")
+        minimized_frame.pack(fill="x", pady=Sizes.PADDING_SMALL)
+        
+        ctk.CTkLabel(
+            minimized_frame,
+            text="启动时最小化到托盘",
+            font=Fonts.BODY,
+            anchor="w"
+        ).pack(side="left", fill="x", expand=True)
+        
+        self.minimized_switch = ctk.CTkSwitch(
+            minimized_frame,
+            text="",
+            variable=self.start_minimized_var,
+            onvalue=True,
+            offvalue=False
+        )
+        self.minimized_switch.pack(side="right")
+        
+        # 提示文字
+        ctk.CTkLabel(
+            container,
+            text="* 建议启用最小化选项，程序将在后台静默运行",
+            font=Fonts.CAPTION,
+            text_color="gray",
+            anchor="w"
+        ).pack(anchor="w", pady=(Sizes.PADDING_SMALL, 0))
+    
     def get_data(self):
+        """获取当前配置数据"""
         return {
             "auto_start": self.auto_start_var.get(),
-            "start_minimized": self.minimized_var.get()
+            "start_minimized": self.start_minimized_var.get()
         }
-
+    
     def set_data(self, config):
+        """设置配置数据"""
         self.auto_start_var.set(config.get("auto_start", False))
-        self.minimized_var.set(config.get("start_minimized", True))
+        self.start_minimized_var.set(config.get("start_minimized", True))
