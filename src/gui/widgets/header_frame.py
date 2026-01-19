@@ -24,29 +24,29 @@ class HeaderFrame(ctk.CTkFrame):
         container.pack(fill="x", expand=True)
         
         # Logo 图片（如果提供）
-        if self.logo_path and self.logo_path.exists():
-            try:
-                # 加载并调整 logo 大小
-                logo_image = Image.open(self.logo_path)
-                # 调整大小
-                size = Sizes.ICON_SIZE_LARGE
-                logo_image = logo_image.resize((size, size), Image.Resampling.LANCZOS)
-                logo_photo = ctk.CTkImage(
-                    light_image=logo_image,
-                    dark_image=logo_image,
-                    size=(size, size)
-                )
+        # if self.logo_path and self.logo_path.exists():
+        #     try:
+        #         # 加载并调整 logo 大小
+        #         logo_image = Image.open(self.logo_path)
+        #         # 调整大小
+        #         size = Sizes.ICON_SIZE_LARGE
+        #         logo_image = logo_image.resize((size, size), Image.Resampling.LANCZOS)
+        #         logo_photo = ctk.CTkImage(
+        #             light_image=logo_image,
+        #             dark_image=logo_image,
+        #             size=(size, size)
+        #         )
                 
-                logo_label = ctk.CTkLabel(
-                    container,
-                    image=logo_photo,
-                    text=""
-                )
-                logo_label.pack(side="left", padx=(0, Sizes.PADDING))
-                # 保持引用防止被垃圾回收
-                logo_label.image = logo_photo
-            except Exception as e:
-                print(f"加载 Logo 失败: {e}")
+        #         logo_label = ctk.CTkLabel(
+        #             container,
+        #             image=logo_photo,
+        #             text=""
+        #         )
+        #         logo_label.pack(side="left", padx=(0, Sizes.PADDING))
+        #         # 保持引用防止被垃圾回收
+        #         logo_label.image = logo_photo
+        #     except Exception as e:
+        #         print(f"加载 Logo 失败: {e}")
         
         # 标题文字
         title_label = ctk.CTkLabel(

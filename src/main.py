@@ -19,6 +19,15 @@ def main():
     from src.gui.dpi_fix import enable_dpi_awareness
     enable_dpi_awareness()
     
+    # 启用 Windows 任务栏图标分组支持
+    if sys.platform == 'win32':
+        import ctypes
+        try:
+            # 这里的 ID 应该是唯一的：gzers.easy-proxifier-toggler.1.0
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("gzers.easy-proxifier-toggler.1.0")
+        except Exception:
+            pass
+    
     # 检查是否跳过管理员权限检查（开发模式）
     skip_admin = os.environ.get('SKIP_ADMIN_CHECK') == '1'
     
@@ -43,6 +52,14 @@ def main():
     # 1. 创建 CTk 根对象（驻留后台）
     root = ctk.CTk()
     root.withdraw()
+
+    # 为根窗口设置图标（这通常决定了任务栏显示的图标）
+    try:
+        icon_path = config_manager.ASSETS_DIR / "icon.ico"
+        if icon_path.exists():
+            root.iconbitmap(str(icon_path))
+    except Exception:
+        pass
 
     # 2. 初始化持久化的设置窗口对象
     app = SettingsWindow(root)

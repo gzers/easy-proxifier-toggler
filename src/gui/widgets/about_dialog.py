@@ -1,6 +1,7 @@
 """关于对话框 - CustomTkinter 现代化版本"""
 import customtkinter as ctk
 import webbrowser
+from ...config import manager as config_manager
 from ..ctk_styles import ButtonStyles, Fonts, Sizes, Colors
 
 
@@ -25,7 +26,21 @@ class AboutDialog:
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
+        # 设置图标 - 参考主界面，使用延迟加载以确保成功
+        self.dialog.after(200, self._set_window_icon)
+            
         self._setup_ui()
+
+    def _set_window_icon(self):
+        """设置窗口图标 - 强制使用 icon.ico"""
+        try:
+            if not self.dialog or not self.dialog.winfo_exists():
+                return
+            icon_path = config_manager.ASSETS_DIR / "icon.ico"
+            if icon_path.exists():
+                self.dialog.iconbitmap(str(icon_path))
+        except Exception as e:
+            print(f"关于窗口设置图标失败: {e}")
     
     def _center_window(self):
         """窗口居中"""

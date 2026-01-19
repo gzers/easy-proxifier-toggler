@@ -60,12 +60,7 @@ class SettingsWindow:
         self.window.resizable(False, False)
         
         # 设置图标
-        try:
-            icon_path = config_manager.ASSETS_DIR / "icon.ico"
-            if icon_path.exists():
-                self.window.iconbitmap(str(icon_path))
-        except:
-            pass
+        self.window.after(200, self._set_window_icon)
         
         # 加载初始配置
         self.initial_config = config_manager.load_config()
@@ -74,6 +69,17 @@ class SettingsWindow:
         
         # 拦截关闭事件
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _set_window_icon(self):
+        """设置窗口图标 - 强制使用 icon.ico"""
+        try:
+            if not self.window or not self.window.winfo_exists():
+                return
+            icon_path = config_manager.ASSETS_DIR / "icon.ico"
+            if icon_path.exists():
+                self.window.iconbitmap(str(icon_path))
+        except Exception as e:
+            print(f"窗口设置图标失败: {e}")
     
     def _center_window(self, width, height):
         """窗口居中"""

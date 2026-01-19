@@ -42,21 +42,10 @@ def create_image(active=True):
         except Exception as e:
             print(f"加载图标失败 ({icon_filename}): {e}")
     
-    # 如果加载失败，创建备用图标
-    width = 64
-    height = 64
-    
-    image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-    dc = ImageDraw.Draw(image)
-    if active:
-        dc.ellipse([8, 8, 56, 56], fill=(0, 120, 215, 255), outline=(0, 90, 180, 255))
-    else:
-        dc.ellipse([8, 8, 56, 56], fill=(160, 160, 160, 255), outline=(120, 120, 120, 255))
-    dc.text((22, 18), "P", fill=(255, 255, 255, 255))
-    
-    # 存入缓存
-    _icon_images[cache_key] = image
-    return image
+    # 如果加载失败，抛出错误或使用一个极简的透明占位（不再生成复杂的带字母图标）
+    # 既然用户要求不要代码生成的图标，我们就只尝试加载
+    print(f"警告: 找不到图标文件 {icon_path}，请检查 assets 目录。")
+    return Image.new('RGBA', (64, 64), (0, 0, 0, 0))
 
 
 def update_icon_state(icon):
