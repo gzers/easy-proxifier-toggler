@@ -142,6 +142,7 @@ class ButtonStyles:
         return {
             "fg_color": Colors.PRIMARY,
             "hover_color": Colors.PRIMARY_HOVER,
+            "text_color": "#ffffff",  # 蓝色背景固定用白色文字
             "corner_radius": Sizes.CORNER_RADIUS,
             "font": Fonts.BUTTON,
             "height": Sizes.BUTTON_HEIGHT,
@@ -153,6 +154,7 @@ class ButtonStyles:
         return {
             "fg_color": Colors.SUCCESS,
             "hover_color": "#268a5f",
+            "text_color": "#ffffff",  # 绿色背景固定用白色文字
             "corner_radius": Sizes.CORNER_RADIUS,
             "font": Fonts.BUTTON,
             "height": Sizes.BUTTON_HEIGHT,
@@ -164,6 +166,7 @@ class ButtonStyles:
         return {
             "fg_color": Colors.DANGER,
             "hover_color": "#b71c1c",
+            "text_color": "#ffffff",  # 红色背景固定用白色文字
             "corner_radius": Sizes.CORNER_RADIUS,
             "font": Fonts.BUTTON,
             "height": Sizes.BUTTON_HEIGHT,
@@ -171,9 +174,11 @@ class ButtonStyles:
     
     @staticmethod
     def secondary():
-        """次要按钮样式（灰色边框）"""
+        """次要按钮样式（灰色边框）- 已适配主题切换"""
         return {
             "fg_color": "transparent",
+            "border_color": (Colors.BORDER_LIGHT, Colors.BORDER_DARK),
+            "text_color": (Colors.TEXT_LIGHT, Colors.TEXT_DARK),
             "border_width": Sizes.BORDER_WIDTH,
             "corner_radius": Sizes.CORNER_RADIUS,
             "font": Fonts.BUTTON,

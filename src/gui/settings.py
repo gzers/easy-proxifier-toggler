@@ -56,11 +56,8 @@ class SettingsWindow:
         self.window.title("Easy-Proxifier-Toggler 主控面板")
         
         # 窗口布局与大小
-        self._center_window(720, 800)
+        self._center_window(720, 850)  # 稍微增加高度
         self.window.resizable(False, False)
-        
-        # 设置统一的窗口圆角 (如果是 CTk 根窗口支持的话，Toplevel 通常随系统或 Frame)
-        # 这里主要通过 Frame 表现圆角
         
         # 设置图标
         try:
@@ -96,7 +93,7 @@ class SettingsWindow:
         self.footer = FooterFrame(self.window, __version__, __author__)
         self.footer.pack(side="bottom", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.WINDOW_PAD_Y))
         
-        # 2. 底部操作按钮区域
+        # 2. 底部操作按钮区域 - 放在底部
         btn_frame = ctk.CTkFrame(self.window, fg_color="transparent")
         btn_frame.pack(side="bottom", fill="x", padx=pad_x, pady=(Sizes.PADDING_SMALL, Sizes.PADDING))
         
@@ -145,7 +142,7 @@ class SettingsWindow:
         )
         reset_btn.pack(side="right", padx=(0, Sizes.PADDING_SMALL))
         
-        # 3. 顶部标题区域
+        # 3. 顶部标题区域 - 放在顶部
         logo_path = config_manager.ASSETS_DIR / "gzgg-logo.gif"
         self.header = HeaderFrame(
             self.window,
@@ -154,15 +151,26 @@ class SettingsWindow:
         )
         self.header.pack(fill="x", padx=pad_x, pady=(Sizes.WINDOW_PAD_Y, Sizes.PADDING))
         
-        # 4. 中间卡片渲染（状态/参数/启动）
-        self.status_panel = StatusFrame(self.window, self.initial_config)
-        self.status_panel.pack(fill="x", padx=pad_x, pady=Sizes.PADDING_SMALL)
+        # 4. 中间可滚动卡片容器
+        scroll_container = ctk.CTkScrollableFrame(
+            self.window, 
+            fg_color="transparent",
+            scrollbar_button_color=(Colors.BORDER_LIGHT, Colors.BORDER_DARK),
+            scrollbar_button_hover_color=Colors.PRIMARY
+        )
+        scroll_container.pack(fill="both", expand=True, padx=pad_x - 5, pady=0)
         
-        self.config_panel = ConfigFrame(self.window, self.initial_config)
-        self.config_panel.pack(fill="x", padx=pad_x, pady=Sizes.PADDING_SMALL)
+        # 统一内部卡片边距
+        card_pad_x = 5
         
-        self.startup_panel = StartupFrame(self.window, self.initial_config)
-        self.startup_panel.pack(fill="x", padx=pad_x, pady=Sizes.PADDING_SMALL)
+        self.status_panel = StatusFrame(scroll_container, self.initial_config)
+        self.status_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
+        
+        self.config_panel = ConfigFrame(scroll_container, self.initial_config)
+        self.config_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
+        
+        self.startup_panel = StartupFrame(scroll_container, self.initial_config)
+        self.startup_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
 
     
     def _toggle_theme(self):
