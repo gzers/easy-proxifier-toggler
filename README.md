@@ -185,35 +185,70 @@ pyinstaller --noconfirm --onefile --windowed --icon="assets/icon.ico" --add-data
 ## 项目结构
 
 ```
-easy-proxifier-toggle/
+easy-proxifier-toggler/
 ├── src/                      # 源代码目录
 │   ├── __init__.py
 │   ├── main.py              # 主程序入口
 │   ├── core/                # 核心功能模块
 │   │   ├── __init__.py
+│   │   ├── constants.py     # 常量定义
 │   │   ├── service.py       # 服务管理
 │   │   └── process.py       # 进程管理
 │   ├── gui/                 # GUI 相关
 │   │   ├── __init__.py
+│   │   ├── ctk_styles.py    # CustomTkinter 样式定义
+│   │   ├── dpi_fix.py       # DPI 修复工具
 │   │   ├── tray_icon.py     # 托盘图标
-│   │   └── settings.py      # 设置窗口
+│   │   ├── settings.py      # 设置窗口
+│   │   └── widgets/         # GUI 组件
+│   │       ├── __init__.py
+│   │       ├── header_frame.py    # 头部框架
+│   │       ├── status_frame.py    # 状态显示框架
+│   │       ├── action_frame.py    # 操作按钮框架
+│   │       ├── config_frame.py    # 配置框架
+│   │       ├── startup_frame.py   # 开机启动框架
+│   │       ├── footer_frame.py    # 底部框架
+│   │       └── about_dialog.py    # 关于对话框
 │   ├── config/              # 配置管理
 │   │   ├── __init__.py
 │   │   └── manager.py       # 配置管理器
 │   └── utils/               # 工具函数
-│       └── __init__.py
+│       ├── __init__.py
+│       ├── admin.py         # 管理员权限工具
+│       └── startup.py       # 开机启动工具
+├── assets/                  # 资源文件目录
+│   ├── icon.ico             # 活动状态图标
+│   ├── icon.png             # 活动状态图标（PNG）
+│   ├── icon_inactive.ico    # 非活动状态图标
+│   ├── icon_inactive.png    # 非活动状态图标（PNG）
+│   └── README.md            # 资源说明
 ├── config/                  # 配置文件目录
 │   ├── config.json          # 用户配置（自动生成）
 │   └── config.example.json  # 配置示例
 ├── docs/                    # 文档目录
-│   ├── CONFIG.md            # 配置说明
 │   ├── QUICKSTART.md        # 快速开始
-│   └── CHANGELOG.md         # 更新日志
+│   ├── CONFIG.md            # 配置说明
+│   ├── USAGE.md             # 使用说明
+│   ├── DEVELOPMENT.md       # 开发指南
+│   ├── CHANGELOG.md         # 更新日志
+│   ├── RESTRUCTURE.md       # 重构说明
+│   ├── TRAY_MENU_SWITCHES.md      # 托盘菜单开关说明
+│   ├── TESTING_DYNAMIC_ICON.md    # 动态图标测试
+│   ├── ADMIN_PERMISSION_UPDATE.md # 管理员权限更新说明
+│   ├── VERSION_2.4.0_SUMMARY.md   # 2.4.0 版本总结
+│   └── DOCUMENTATION_INDEX.md     # 文档索引
 ├── scripts/                 # 脚本目录
 │   ├── build.bat            # 打包脚本
-│   └── check_config.py      # 配置检查工具
+│   ├── check_config.py      # 配置检查工具
+│   ├── cleanup_old_files.bat      # 清理旧文件
+│   ├── update_version.py    # 版本更新工具
+│   ├── regen_all_icons.py   # 重新生成所有图标
+│   ├── regen_active_ico.py  # 重新生成活动图标
+│   └── regen_inactive_ico.py      # 重新生成非活动图标
 ├── run.py                   # 启动脚本
+├── start_admin.bat          # 管理员模式启动脚本
 ├── .gitignore
+├── LICENSE
 ├── README.md
 └── requirements.txt
 ```
