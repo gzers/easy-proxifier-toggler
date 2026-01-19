@@ -4,7 +4,7 @@
 
 # Easy-Proxifier-Toggler
 
-[![Version](https://img.shields.io/badge/version-2.3.3-blue.svg)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](docs/CHANGELOG.md)
 
 **快速切换 Proxifier 运行状态的系统托盘工具**
 
@@ -107,7 +107,9 @@ python run.py -d
 
 - **切换 Proxifier**（默认操作）：点击切换 Proxifier 的开关状态
 - **查看状态**：显示当前服务和进程状态
-- **设置**：打开配置窗口，修改 Proxifier 路径和服务名称
+- **主界面**：打开配置窗口，修改 Proxifier 路径和服务名称
+- **开机自启动** ✓：直接在托盘菜单切换开机自启动（启用时显示打勾）
+- **最小化启动** ✓：控制程序启动时是否最小化到托盘（启用时显示打勾）
 - **退出**：关闭托盘程序
 
 ## 打包为 EXE（可选）

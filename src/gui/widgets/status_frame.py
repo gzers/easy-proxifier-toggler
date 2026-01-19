@@ -13,7 +13,11 @@ class StatusFrame(ctk.CTkFrame):
         # 应用卡片样式
         kwargs.setdefault("corner_radius", Sizes.CORNER_RADIUS_LARGE)
         kwargs.setdefault("border_width", 0)
+        kwargs.setdefault("height", 180)  # 设置固定高度，确保切换按钮可见
         super().__init__(master, **kwargs)
+        
+        # 禁用自动扩展，保持固定高度
+        self.pack_propagate(False)
         
         self.config = config
         self.is_monitoring = True
@@ -28,55 +32,48 @@ class StatusFrame(ctk.CTkFrame):
     
     def _setup_ui(self):
         """设置 UI 布局 - Fluent 风格"""
-        # 主容器
+        # 主容器 - 减少上下留白
         container = ctk.CTkFrame(self, fg_color="transparent")
-        container.pack(fill="both", expand=True, padx=Sizes.PADDING_LARGE, pady=Sizes.PADDING_LARGE)
+        container.pack(fill="both", expand=True, padx=Sizes.PADDING_LARGE, pady=Sizes.PADDING_SMALL)
         
         # 标题 - 更轻量的样式
         title_label = ctk.CTkLabel(
             container,
             text="当前状态",
-            font=("Microsoft YaHei UI", 14, "normal"),  # Medium weight, smaller
+            font=("Microsoft YaHei UI", 14, "normal"),
             text_color=(Colors.TEXT_SECONDARY_LIGHT, Colors.TEXT_SECONDARY_DARK),
             anchor="w"
         )
-        title_label.pack(anchor="w", pady=(0, Sizes.PADDING))
+        title_label.pack(anchor="w", pady=(0, Sizes.PADDING_TINY))
         
-        # 状态信息区域
-        status_container = ctk.CTkFrame(container, fg_color="transparent")
-        status_container.pack(fill="x", pady=(0, Sizes.PADDING))
+        # 状态信息区域 - 单行布局，固定高度
+        status_row = ctk.CTkFrame(container, fg_color="transparent", height=32)
+        status_row.pack(fill="x", pady=(0, Sizes.PADDING_TINY))
+        status_row.pack_propagate(False)  # 防止子组件撑大容器
         
-        # 驱动服务状态行 - 行式布局
-        self._create_status_row(
-            status_container,
-            "驱动服务",
-            "service"
-        )
+        # 左侧：驱动服务状态（横向布局）
+        self._create_status_inline(status_row, "驱动服务", "service", side="left")
         
-        # 轻分割线
-        separator = ctk.CTkFrame(
-            status_container,
-            height=1,
+        # 中间竖线分隔
+        separator_line = ctk.CTkFrame(
+            status_row,
+            width=1,
             fg_color=(Colors.BORDER_LIGHT, Colors.BORDER_DARK)
         )
-        separator.pack(fill="x", pady=Sizes.PADDING)
+        separator_line.pack(side="left", fill="y", padx=Sizes.PADDING_LARGE, pady=4)
         
-        # 进程状态行 - 行式布局
-        self._create_status_row(
-            status_container,
-            "进程状态",
-            "process"
-        )
+        # 右侧：进程状态（横向布局）
+        self._create_status_inline(status_row, "进程状态", "process", side="left")
         
-        # 底部分割线
-        bottom_separator = ctk.CTkFrame(
+        # 分割线
+        separator = ctk.CTkFrame(
             container,
             height=1,
             fg_color=(Colors.BORDER_LIGHT, Colors.BORDER_DARK)
         )
-        bottom_separator.pack(fill="x", pady=(Sizes.PADDING, Sizes.PADDING_LARGE))
+        separator.pack(fill="x", pady=(Sizes.PADDING_TINY, Sizes.PADDING_SMALL))
         
-        # 切换按钮 - 放在底部居中
+        # 切换按钮 - 单独一行，居中
         from ..ctk_styles import StyledButton
         self.toggle_btn = StyledButton(
             container,
@@ -85,32 +82,29 @@ class StatusFrame(ctk.CTkFrame):
             style="primary",
             width=180,
             height=42,
-            corner_radius=10,
+            corner_radius=Sizes.CORNER_RADIUS_LARGE,
             font=("Microsoft YaHei UI", 13, "bold")
         )
-        self.toggle_btn.pack(anchor="center")
+        self.toggle_btn.pack(anchor="center", pady=(Sizes.PADDING, 0))
     
-    def _create_status_row(self, parent, label_text, status_type):
-        """创建单个状态行
+    def _create_status_inline(self, parent, label_text, status_type, side="left"):
+        """创建单个状态项（横向单行布局）
         
         Args:
             parent: 父容器
             label_text: 标签文本
             status_type: 状态类型 ("service" 或 "process")
+            side: pack 的 side 参数
         """
-        row = ctk.CTkFrame(parent, fg_color="transparent")
-        row.pack(fill="x", pady=Sizes.PADDING_SMALL)
+        # 整个状态项容器（等宽）
+        item_container = ctk.CTkFrame(parent, fg_color="transparent")
+        item_container.pack(side=side, fill="both", expand=True)
         
-        # 左侧：状态指示器（8px 圆点）+ 标签
-        left_container = ctk.CTkFrame(row, fg_color="transparent")
-        left_container.pack(side="left", fill="x", expand=True)
-        
-        # 状态指示器容器（用于放置圆点）
-        indicator_container = ctk.CTkFrame(left_container, fg_color="transparent", width=12, height=12)
-        indicator_container.pack(side="left", padx=(0, 8))
+        # 状态指示器（8px 圆点）
+        indicator_container = ctk.CTkFrame(item_container, fg_color="transparent", width=12, height=12)
+        indicator_container.pack(side="left", padx=(0, 6))
         indicator_container.pack_propagate(False)
         
-        # 8px 圆点指示器
         if status_type == "service":
             self.service_indicator = ctk.CTkLabel(
                 indicator_container,
@@ -130,19 +124,22 @@ class StatusFrame(ctk.CTkFrame):
         
         # 标签文本
         ctk.CTkLabel(
-            left_container,
+            item_container,
             text=label_text,
-            font=Fonts.BODY,
+            font=("Microsoft YaHei UI", 12),
             anchor="w"
-        ).pack(side="left")
+        ).pack(side="left", padx=(0, 12))
         
-        # 右侧：状态徽章（轻量化）
+        # 状态徽章（固定宽度等宽，固定高度）
         badge_container = ctk.CTkFrame(
-            row,
+            item_container,
             corner_radius=8,
-            fg_color="transparent"
+            fg_color="transparent",
+            width=120,  # 设置固定宽度，让两个徽章等宽
+            height=28   # 设置固定高度，防止占满面板
         )
-        badge_container.pack(side="right")
+        badge_container.pack(side="left")
+        badge_container.pack_propagate(False)  # 保持固定尺寸
         
         if status_type == "service":
             self.service_badge = badge_container
@@ -152,7 +149,7 @@ class StatusFrame(ctk.CTkFrame):
                 font=("Microsoft YaHei UI", 11),
                 text_color=Colors.TEXT_SECONDARY_DARK
             )
-            self.service_status_label.pack(padx=12, pady=6)
+            self.service_status_label.pack(padx=12, pady=4, expand=True)
         else:
             self.process_badge = badge_container
             self.process_status_label = ctk.CTkLabel(
@@ -161,7 +158,7 @@ class StatusFrame(ctk.CTkFrame):
                 font=("Microsoft YaHei UI", 11),
                 text_color=Colors.TEXT_SECONDARY_DARK
             )
-            self.process_status_label.pack(padx=12, pady=6)
+            self.process_status_label.pack(padx=12, pady=4, expand=True)
     
     def _animate_loading(self):
         """处理加载动画"""

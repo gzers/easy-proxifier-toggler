@@ -130,7 +130,7 @@ class SettingsWindow:
         # 内部卡片
         card_pad_x = 5
         self.status_panel = StatusFrame(scroll_container, self.initial_config)
-        self.status_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
+        self.status_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_TINY)
         
         self.config_panel = ConfigFrame(scroll_container, self.initial_config)
         self.config_panel.pack(fill="x", padx=card_pad_x, pady=Sizes.PADDING_SMALL)
