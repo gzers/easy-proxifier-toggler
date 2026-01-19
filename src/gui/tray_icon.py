@@ -5,6 +5,7 @@ import pystray
 from PIL import Image, ImageDraw
 from ..core import service, process
 from ..config import manager as config_manager
+from ..utils import startup
 from .settings import open_settings
 
 
@@ -133,6 +134,49 @@ def quit_app(icon, item):
         _app_instance.root.after(0, _app_instance.root.quit)
 
 
+def toggle_auto_start(icon, item):
+    """切换自启动状态"""
+    current_state = config_manager.get_auto_start()
+    new_state = not current_state
+    
+    # 更新配置
+    if config_manager.update_config(auto_start=new_state):
+        # 同步注册表
+        if startup.toggle_auto_start(new_state):
+            status_text = "已启用" if new_state else "已禁用"
+            icon.notify(f"开机自启动{status_text}", "设置更新")
+        else:
+            icon.notify("自启动设置失败，请检查权限", "错误")
+            # 回滚配置
+            config_manager.update_config(auto_start=current_state)
+    else:
+        icon.notify("配置保存失败", "错误")
+
+
+def toggle_minimize_on_startup(icon, item):
+    """切换启动时最小化状态"""
+    current_state = config_manager.get_start_minimized()
+    new_state = not current_state
+    
+    # 更新配置
+    if config_manager.update_config(start_minimized=new_state):
+        status_text = "启用" if new_state else "禁用"
+        icon.notify(f"启动时最小化已{status_text}", "设置更新")
+    else:
+        icon.notify("配置保存失败", "错误")
+
+
+def check_auto_start(item):
+    """检查自启动是否启用（用于菜单显示打勾）"""
+    return config_manager.get_auto_start()
+
+
+def check_minimize_on_startup(item):
+    """检查启动时最小化是否启用（用于菜单显示打勾）"""
+    return config_manager.get_start_minimized()
+
+
+
 def setup_icon(app_instance=None):
     """设置托盘图标和菜单"""
     global _app_instance, _icon_instance
@@ -146,6 +190,9 @@ def setup_icon(app_instance=None):
         pystray.MenuItem("查看状态", show_status),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("主界面", open_settings_window),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("开机自启动", toggle_auto_start, checked=check_auto_start),
+        pystray.MenuItem("最小化启动", toggle_minimize_on_startup, checked=check_minimize_on_startup),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("退出", quit_app)
     )
